@@ -79,7 +79,7 @@ def info(iface='hid', device='ecc', **kwargs):
     print('    Data Zone is %s' % ('locked' if data_zone_locked else 'unlocked'))
 
     #Load the public key
-    if data_zone_locked:
+    if 'ecc' == device and data_zone_locked:
         print('\nLoading Public key\n')
         public_key = bytearray(64)
         assert atcab_get_pubkey(0, public_key) == ATCA_SUCCESS
