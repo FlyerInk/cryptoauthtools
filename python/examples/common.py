@@ -65,7 +65,16 @@ def parse_interface_params(list):
     """
     return {} if list is None else dict([s.split('=') for s in list])
 
-
+def pretty_print_c_hex(a, l=16, indent=''):
+    """
+    Format a list/bytes/bytearray object into a formatted ascii hex string
+    """
+    s = ''
+    a = bytearray(a)
+    for x in range(0, len(a), l):
+        s += indent + ''.join(['0x%02X, ' % y for y in a[x:x+l]]) + '\n'
+    return s
+ 
 def pretty_print_hex(a, l=16, indent=''):
     """
     Format a list/bytes/bytearray object into a formatted ascii hex string

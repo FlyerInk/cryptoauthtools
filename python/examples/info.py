@@ -51,7 +51,7 @@ def info(iface='hid', device='ecc', **kwargs):
     # Request the Revision Number
     info = bytearray(4)
     assert atcab_info(info) == ATCA_SUCCESS
-    print('\nDevice Part:')
+    print('Device Part:')
     print('    ' + get_device_name(info))
 
     # Request the Serial Number
@@ -64,11 +64,11 @@ def info(iface='hid', device='ecc', **kwargs):
     config_zone = bytearray(128)
     assert atcab_read_config_zone(config_zone) == ATCA_SUCCESS
 
-    print('\nConfiguration Zone:')
-    print(pretty_print_hex(config_zone, indent='    '))
+    print('Configuration Zone:')
+    print(pretty_print_c_hex(config_zone, indent='    '))
 
     # Check the device locks
-    print('\nCheck Device Locks')
+    print('Check Device Locks')
     is_locked = AtcaReference(False)
     assert atcab_is_locked(0, is_locked) == ATCA_SUCCESS
     config_zone_locked = bool(is_locked.value)
@@ -80,10 +80,10 @@ def info(iface='hid', device='ecc', **kwargs):
 
     #Load the public key
     if 'ecc' == device and data_zone_locked:
-        print('\nLoading Public key\n')
+        print('\nLoading Public key')
         public_key = bytearray(64)
         assert atcab_get_pubkey(0, public_key) == ATCA_SUCCESS
-
+        print(pretty_print_hex(public_key, indent='    '))
         public_key =  bytearray.fromhex('3059301306072A8648CE3D020106082A8648CE3D03010703420004') + bytes(public_key)
         public_key = base64.b64encode(public_key).decode('ascii')
         public_key = ''.join(public_key[i:i+64] + '\n' for i in range(0,len(public_key),64))
@@ -92,7 +92,6 @@ def info(iface='hid', device='ecc', **kwargs):
 
     # Free the library
     atcab_release()
-
 
 if __name__ == '__main__':
     parser = setup_example_runner(__file__)
