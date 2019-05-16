@@ -12,12 +12,19 @@ Microchip的cryptoauthlib的访问页面如下:
 
 ## 准备工作
 #### 软件部分
-首先从github上下载最新的例程代码，地址如下：
-https://github.com/MicrochipTech/cryptoauthtools
 
-安装Python, 最好是3.x的版本。如果已经安装过可以忽略这一步。
+##### 下载最新的代码
+首先从github上下载最新的例程代码，地址如下：https://github.com/MicrochipTech/cryptoauthtools
 
-安装Python需要的组件。
+或者使用git克隆代码：
+```
+git clone https://github.com/MicrochipTech/cryptoauthtools.git
+```
+##### 安装Python（如果已经安装过可以忽略这一步）
+Python的版本最好是3.x的版本，根据系统选择32bit还是64bit。注意需要将python和python\scripts的路径加到系统path的环境变量中。
+
+##### 安装Python需要的组件
+
 进入cryptoauthtools\python\examples目录中，运行以下命令:
 ```
     pip install -r requirements.txt
@@ -50,7 +57,7 @@ Python将自动安装cryptoauthlib和cryptography库(需要v2.3以上的版本)
 这些例子旨在简单明了地说明基本概念。
 要获得任何示例的帮助，您可以参考相关文档(例如:info.py 有一个info.md说明文档)或者通过命令行:
 ```
-  $ info.py -h
+  $ python info.py -h
 usage: info.py [-h] [-i {i2c,hid}] [-d {ecc,sha}] [-p [PARAMS [PARAMS ...]]]
 ```
 
@@ -104,7 +111,6 @@ Device Part:
 Serial number:
     01 23 6B 3F AC 10 2F 1B A5
 
-
 Configuration Zone:
     01 23 6B 3F 00 00 50 00 AC 10 2F 1B A5 00 45 00
     B0 00 55 00 8F 20 C4 44 87 20 87 20 8F 0F C4 36
@@ -114,7 +120,6 @@ Configuration Zone:
     FF FF FF FF 00 00 00 00 FF FF 00 00 00 00 00 00
     33 00 1C 00 13 00 13 00 7C 00 1C 00 3C 00 33 00
     3C 00 3C 00 3C 00 30 00 3C 00 3C 00 3C 00 30 00
-
 
 Check Device Locks
     Config Zone is locked
@@ -168,7 +173,7 @@ _atecc608_config = bytearray.fromhex(
 ```
 
 ##### ATSHA204A配置:
-* Solt可自由写入，无需事先知道Slot中的内容
+* Solt8可自由写入，无需事先知道Slot中的内容
 ```python
 _atsha204_config = bytearray.fromhex(
     'C8 00 55 00 8F 80 80 A1 82 E0 C4 F4 84 00 A0 85'
@@ -218,23 +223,19 @@ Host Public Key:
     87 36 AD DA 8E 4F 88 BF 51 29 F3 08 94 28 FC 7C
     C8 82 B5 33 AD E8 93 8B FC 52 33 35 22 F6 E2 3C
 
-
 Device public key:
     49 E5 CE F0 48 F9 3C 81 D0 99 6D F0 E9 BD 6F 70
     A3 C9 7C 61 46 89 26 49 1E 0B E1 24 C1 42 95 58
     A3 8F 97 8B E6 CF 78 64 EC C8 81 7A A0 4D E8 BB
     E1 4E 99 F7 35 31 ED E1 05 88 97 37 BE B9 E1 2D
 
-
 Host Calculated Shared Secret:
     E5 0B 40 8F F7 8F C7 92 4B AA 5F 04 9F 5E 16 64
     E7 80 11 A3 FC 7D B4 8E 17 4B 05 44 3E 85 12 2E
 
-
 Device Calculated Shared Secret:
     E5 0B 40 8F F7 8F C7 92 4B AA 5F 04 9F 5E 16 64
     E7 80 11 A3 FC 7D B4 8E 17 4B 05 44 3E 85 12 2E
-
 
 Comparing host and device generated secrets:
     Success - Generated secrets match!
@@ -256,7 +257,6 @@ Generaing data using RAND command
         31 38 23 06 13 74 7E 6B 3C 3B 10 76 01 D8 3A F3
         C3 27 3F 73 22 E4 7F 64 3C 89 D6 2A B9 FA 22 0D
 
-
 Write command:
     Writing data to slot 8
     Write Success
@@ -266,7 +266,6 @@ Read command:
     Read data:
         31 38 23 06 13 74 7E 6B 3C 3B 10 76 01 D8 3A F3
         C3 27 3F 73 22 E4 7F 64 3C 89 D6 2A B9 FA 22 0D
-
 
 Verifing read data matches written data:
     Data Matches!
@@ -278,7 +277,6 @@ Generaing data using RAND command
         E3 C0 60 F4 6F 48 70 83 F8 C8 7F 1C B0 25 93 F0
         2B 5B F4 D8 4E 50 E8 B1 3C 5E 94 1E 76 4A 11 BF
 
-
 Encrypted Write Command:
     Writing data to slot 3
     Write Success
@@ -288,7 +286,6 @@ Encrypted Read Command:
     Read data:
         E3 C0 60 F4 6F 48 70 83 F8 C8 7F 1C B0 25 93 F0
         2B 5B F4 D8 4E 50 E8 B1 3C 5E 94 1E 76 4A 11 BF
-
 
 Verifing read data matches written data:
     Data Matches!
@@ -324,7 +321,6 @@ Message Digest:
     09 BA 4E F5 83 A1 E8 19 19 1F FD 4B 86 D5 55 0D
     27 6B 4A C0 D3 54 E1 C4 FD CC 47 D6 D8 8C DC 33
 
-
 Signing the Message Digest
     Signing with device
 
@@ -333,7 +329,6 @@ Signature:
     0A EB 98 90 85 DC 33 7B D7 3B E8 4B B3 3E 36 C5
     E0 89 C6 F6 AA 80 DC 9F 37 13 97 2D 18 ED 3D BF
     62 10 0A CC 68 6B 1A 45 21 71 2E 5C 14 86 F9 98
-
 
 Verifing the signature:
     Verifying with host

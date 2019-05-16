@@ -1,5 +1,5 @@
 """
-Device Info Retrieval Example
+Basic Dirive Key Verify Common Use Cases
 """
 # (c) 2015-2018 Microchip Technology Inc. and its subsidiaries.
 #
@@ -23,9 +23,15 @@ Device Info Retrieval Example
 
 from cryptoauthlib import *
 from common import *
+import time
+import hashlib
+
+# Safe input if using python 2
+try: input = raw_input
+except NameError: pass
 
 
-def info(iface='hid', device='ecc', **kwargs):
+def authentication_counter(iface='hid', device='ecc', i2c_addr=None, keygen=True, **kwargs):
     ATCA_SUCCESS = 0x00
 
     # Loading cryptoauthlib(python specific)
@@ -48,51 +54,85 @@ def info(iface='hid', device='ecc', **kwargs):
     assert atcab_init(cfg) == ATCA_SUCCESS
     print('')
 
-    # Request the Revision Number
+    # Check device type
     info = bytearray(4)
     assert atcab_info(info) == ATCA_SUCCESS
-    print('\nDevice Part:')
-    print('    ' + get_device_name(info))
+    dev_name = get_device_name(info)
+    dev_type = get_device_type_id(dev_name)
 
+    # Reinitialize if the device type doesn't match the default
+    if dev_type != cfg.devtype:
+        cfg.dev_type = dev_type
+        assert atcab_release() == ATCA_SUCCESS
+        time.sleep(1)
+        assert atcab_init(cfg) == ATCA_SUCCESS
+    
     # Request the Serial Number
     serial_number = bytearray(9)
     assert atcab_read_serial_number(serial_number) == ATCA_SUCCESS
-    print('\nSerial number: ')
+    print('Serial number: ')
     print(pretty_print_hex(serial_number, indent='    '))
-
-    # Read the configuration zone
-    config_zone = bytearray(128)
-    assert atcab_read_config_zone(config_zone) == ATCA_SUCCESS
-
-    print('\nConfiguration Zone:')
-    print(pretty_print_hex(config_zone, indent='    '))
-
+    
     # Check the device locks
-    print('\nCheck Device Locks')
+    print('Check Device Locks')
     is_locked = AtcaReference(False)
     assert atcab_is_locked(0, is_locked) == ATCA_SUCCESS
     config_zone_locked = bool(is_locked.value)
     print('    Config Zone is %s' % ('locked' if config_zone_locked else 'unlocked'))
-
+    
     assert atcab_is_locked(1, is_locked) == ATCA_SUCCESS
     data_zone_locked = bool(is_locked.value)
     print('    Data Zone is %s' % ('locked' if data_zone_locked else 'unlocked'))
-
-    #Load the public key
-    if 'ecc' == device and data_zone_locked:
-        print('\nLoading Public key\n')
-        public_key = bytearray(64)
-        assert atcab_get_pubkey(0, public_key) == ATCA_SUCCESS
-        print(pretty_print_hex(public_key, indent='    '))
-        print(convert_ec_pub_to_pem(public_key))
-
-    # Free the library
+    
+    # Run a nonce command to get a random data
+    nonce_in = bytearray.fromhex(
+          '00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00'
+          '00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00')
+    nonce_out = bytearray(32)
+    assert atcab_nonce_rand(nonce_in, nonce_out) == ATCA_SUCCESS
+    print('Nonce: ')
+    print(pretty_print_hex(nonce_out, indent='    '))
+    
+    # Run a MAC command at Slot0, Slot0 have programmed with DeriveKey from RootKey
+    digest = bytearray(32)
+    assert atcab_mac(0x00, 0x00, nonce_out, digest) == ATCA_SUCCESS
+    print('Digest: ')
+    print(pretty_print_hex(digest, indent='    '))
+    
+    # Get DeriveKey from RootKey + SN + SN Pad + ...
+    # Must same with Client Slot0 value
+    rootkey = bytearray.fromhex(
+          '33 33 33 33 33 33 33 33 33 33 33 33 33 33 33 33'
+          '33 33 33 33 33 33 33 33 33 33 33 33 33 33 33 33')
+    
+    # 01 23 50 16 CE FE 0B 8D EE
+    opcode = bytearray.fromhex(
+          '08 00 00 00'
+          '00 00 00 00 00 00 00 00 00 00 00'
+          'EE 00 00 00 00 01 23 00 00')
+    optbytes = rootkey+nonce_out+opcode
+    sha256 = hashlib.sha256() #Must init hashlib again here
+    sha256.update(optbytes)
+    mac = sha256.digest()
+    print('MAC: ')
+    print(pretty_print_hex(mac, indent='    '))
+    
+    if mac == digest:
+       print('Authentication Success!\n')
+    else:
+       print('Authentication Fail!\n')
+    
     atcab_release()
-
 
 if __name__ == '__main__':
     parser = setup_example_runner(__file__)
+    parser.add_argument('--i2c', help='I2C Address (in hex)')
+    parser.add_argument('--gen', default=True, help='Generate new keys')
     args = parser.parse_args()
 
-    info(args.iface, args.device, **parse_interface_params(args.params))
-    print('\nDone')
+    if args.i2c is not None:
+        args.i2c = int(args.i2c, 16)
+
+    print('\nDirive Key Verify Starting...')
+    authentication_counter(args.iface, args.device, args.i2c, args.gen, **parse_interface_params(args.params))
+    #print('Authentication Counter Test Success')

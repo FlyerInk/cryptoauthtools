@@ -1,5 +1,5 @@
 """
-Basic Configuration Common Use Cases
+Basic Dirive Key Verify Common Use Cases
 """
 # (c) 2015-2018 Microchip Technology Inc. and its subsidiaries.
 #

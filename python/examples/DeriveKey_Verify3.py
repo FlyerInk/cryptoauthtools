@@ -1,5 +1,5 @@
 """
-Basic Configuration Common Use Cases
+Basic Dirive Key Verify Common Use Cases
 """
 # (c) 2015-2018 Microchip Technology Inc. and its subsidiaries.
 #
@@ -24,7 +24,6 @@ Basic Configuration Common Use Cases
 from cryptoauthlib import *
 from common import *
 import time
-import hashlib
 
 # Safe input if using python 2
 try: input = raw_input
