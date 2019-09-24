@@ -83,6 +83,12 @@ def ECDH(slot, iface='hid', **kwargs):
     # Buffers for device public key and shared secret
     device_pub = bytearray(64)
     device_shared = bytearray(32)
+    ENC_KEY = bytearray([
+        0x37, 0x80, 0xe6, 0x3d, 0x49, 0x68, 0xad, 0xe5,
+        0xd8, 0x22, 0xc0, 0x13, 0xfc, 0xc3, 0x23, 0x84,
+        0x5d, 0x1b, 0x56, 0x9f, 0xe7, 0x05, 0xb6, 0x00,
+        0x06, 0xfe, 0xec, 0x14, 0x5a, 0x0d, 0xb1, 0xe3
+    ])
 
     # Generate a device private key and perform the ECDH operation
     # This step is using the unencrypted form of the ECDH calls due to configuration details that will be specific
@@ -92,11 +98,12 @@ def ECDH(slot, iface='hid', **kwargs):
         assert atcab_ecdh(slot, host_pub, device_shared) == ATCA_SUCCESS
     else:
         assert atcab_genkey(0xFFFF, device_pub) == ATCA_SUCCESS
-        assert atcab_ecdh_tempkey(host_pub, device_shared) == ATCA_SUCCESS
+        #assert atcab_ecdh_tempkey(host_pub, device_shared) == ATCA_SUCCESS
+        assert atcab_ecdh_tempkey_ioenc(host_pub, device_shared, ENC_KEY) == ATCA_SUCCESS
 
     # Display the device's public key
     print("\nDevice public key:")
-    print(pretty_print_hex(device_pub, indent='    '))
+    print(pretty_print_hex(device_pub, indent='    ')) 
     print(convert_ec_pub_to_pem(device_pub))
 
     # Convert device public key to a cryptography public key object

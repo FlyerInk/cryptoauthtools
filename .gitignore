@@ -48,6 +48,7 @@ local.properties
 *.o
 
 .vs
+.vscode/
 
 # Python
 .tox/
@@ -60,4 +61,3 @@ dist/
 
 # Virtualenv
 venv*
-l

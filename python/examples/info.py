@@ -53,6 +53,7 @@ def info(iface='hid', device='ecc', **kwargs):
     assert atcab_info(info) == ATCA_SUCCESS
     print('\nDevice Part:')
     print('    ' + get_device_name(info))
+    print(pretty_print_hex(info, indent='    '))
 
     # Request the Serial Number
     serial_number = bytearray(9)
@@ -65,7 +66,8 @@ def info(iface='hid', device='ecc', **kwargs):
     assert atcab_read_config_zone(config_zone) == ATCA_SUCCESS
 
     print('\nConfiguration Zone:')
-    print(pretty_print_hex(config_zone, indent='    '))
+    print(pretty_print_c_hex(config_zone, indent='    '))
+    #print(pretty_print_hex(config_zone, indent='    '))
 
     # Check the device locks
     print('\nCheck Device Locks')
